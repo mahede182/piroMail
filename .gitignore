@@ -1,10 +1,42 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# Node.js & Turborepo
+node_modules/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Virtual environments
-.venv
+# Vite / Frontend builds
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+ENV/
+env/
+db.sqlite3
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS / IDE files
+.DS_Store
+.vscode/
+.idea/
+
+# AI Assistant
+.agents/
+AGENTS.local.md
+
+

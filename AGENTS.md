@@ -28,6 +28,7 @@ A locally hosted, AI-powered email assistant that reads a mock inbox, classifies
 4. **The API only exposes important emails.** `GET /api/notifications/` returns `is_important=True` records, ordered newest first. Keep the view minimal.
 5. **Frontend polls, never pushes.** The React dashboard uses `setInterval` in `useEffect` to re-fetch every 10 seconds. No WebSockets.
 6. **Environment secrets stay out of code.** `GEMINI_API_KEY` is read from environment variables or `.env`, never hardcoded.
+7. **Emoji.** never used any emoji in ui.
 
 ---
 

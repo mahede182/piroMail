@@ -4,7 +4,11 @@ import os
 DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-
+if 'RENDER_EXTERNAL_HOSTNAME' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RENDER_EXTERNAL_HOSTNAME'])
+# Fallback hardcoded host just in case
+if 'piromail-backend.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('piromail-backend.onrender.com')
 # Production specific security settings
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

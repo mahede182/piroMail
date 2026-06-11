@@ -1,32 +1,32 @@
 [
   {
-    "email_id": "em_001",
-    "sender": "boss@company.com",
-    "subject": "URGENT: Server Down",
-    "body": "The production server is currently unreachable. Need an immediate fix before clients notice."
+    "email_id": "em_006",
+    "sender": "david.chen@core-infra.tech",
+    "subject": "CRITICAL: Database primary node CPU at 99% (incident #4892)",
+    "body": "Hey team, we're seeing a massive spike in active connections on the PostgreSQL primary node (db-prod-01). CPU utilization has been hovering at 99% for the last 15 minutes, and read latency is climbing past 1.2s. I've already checked the replication lag and it looks stable, but we need someone to check the slow query logs immediately. Looks like a missing index on the new workspace audit logs table might be the culprit. Please join the incident bridge at zoom.us/j/9821308412 as soon as you see this."
   },
   {
-    "email_id": "em_002",
-    "sender": "newsletter@marketing.com",
-    "subject": "Your Weekly Tech News",
-    "body": "Here are the top 10 trends in AI for 2026. Read more inside..."
+    "email_id": "em_007",
+    "sender": "subscribers@byte-sized-digest.io",
+    "subject": "Byte-Sized Tech: The Rise of Small Language Models + Python 3.13 JIT",
+    "body": "Welcome back to another edition of Byte-Sized Tech. Here is what we're looking at this week:\n\n- Small Language Models (SLMs) are outperforming larger models on edge devices. We compare recent releases from Apple, Microsoft, and Google.\n- Python 3.13 is introducing an experimental JIT compiler. We break down the performance benchmarks and what it means for web application servers.\n- Developer Tools Spotlight: A curation of the best terminal multiplexers and CLI tools that will boost your terminal productivity.\n\nRead the full article online at byte-sized-digest.io/issue-412"
   },
   {
-    "email_id": "em_003",
-    "sender": "hr@company.com",
-    "subject": "Upcoming Holiday Schedule",
-    "body": "Please find attached the holiday schedule for Q3 and Q4."
+    "email_id": "em_008",
+    "sender": "sarah.jenkins@hq-operations.com",
+    "subject": "Notice: Q3 Office Closures and Floating Holiday Request Policies",
+    "body": "Dear team,\n\nAs we approach the end of the second quarter, we would like to remind everyone of the upcoming office closures for Q3. The corporate headquarters and regional support centers will be closed on Friday, July 3rd for the observed Independence Day holiday, and Monday, September 7th for Labor Day.\n\nIf you plan to utilize your floating holiday allocation or request additional PTO around these dates, please ensure your requests are submitted in the HR portal by Friday, June 19th so that department managers can plan coverage accordingly. Let me know if you have any questions."
   },
   {
-    "email_id": "em_004",
-    "sender": "client@important.com",
-    "subject": "Proposal Feedback",
-    "body": "We loved your proposal but have a few questions regarding the timeline. Can we schedule a call today?"
+    "email_id": "em_009",
+    "sender": "marcus.vance@acme-ventures.com",
+    "subject": "Re: Proposed Timeline & Milestones for API Integration Project",
+    "body": "Hi team, thanks for sending over the detailed proposal last night. We went through the milestones this morning and the overall architecture looks incredibly solid. However, the Q4 delivery date for the data sync pipeline is a bit tight for us because of our peak shopping season. Is there any way we can expedite Phase 2 by parallelizing the schema mapping tasks? Also, could you clarify what the ongoing SLA looks like for support tier 2? Let's jump on a quick call today if you have 15 minutes to spare. Here is my Calendly link: calendly.com/marcus-vance/15min"
   },
   {
-    "email_id": "em_005",
+    "email_id": "em_010",
     "sender": "noreply@github.com",
-    "subject": "[GitHub] Dependabot Alert",
-    "body": "Dependabot found 1 vulnerability in one of your dependencies. Please review."
+    "subject": "[GitHub] Security Alert: 1 Moderate Vulnerability found in Django project",
+    "body": "GitHub Alert System\n\nWe found a known security vulnerability in a package that your project repository depends on:\n- Package: django\n- Severity: Moderate\n- Dependency: Django >= 4.2, < 4.2.11\n- Vulnerability ID: GHSA-xwhk-cx94-9696\n- Description: Directory traversal in django.core.files.storage.FileSystemStorage.\n\nPlease update your django dependency to version 4.2.11 or higher to resolve this vulnerability. For more details, see the advisory linked above."
   }
 ]

@@ -4,16 +4,13 @@ import Sidebar from './components/Sidebar';
 import EmailList from './components/EmailList';
 import EmailDetail from './components/EmailDetail';
 
-const API_URL = 'http://localhost:8000/api/notifications/';
-const CONFIG_URL = 'http://localhost:8000/api/config/';
-const PROCESS_URL = 'http://localhost:8000/api/process_emails/';
-const UPDATE_URL = 'http://localhost:8000/api/update_email/';
-const POLL_INTERVAL_MS = 10000;
+import { API_URL, CONFIG_URL, PROCESS_URL, UPDATE_URL } from './constants/api';
 
 function App() {
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pollIntervalMs, setPollIntervalMs] = useState(10000);
   const isConnected = false;
 
   const [systemPrompt, setSystemPrompt] = useState('');
@@ -32,6 +29,9 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setSystemPrompt(data.prompt || '');
+          if (data.poll_interval) {
+            setPollIntervalMs(data.poll_interval);
+          }
         }
       } catch (e) {
         console.error("Failed to fetch config", e);
@@ -68,9 +68,9 @@ function App() {
 
   useEffect(() => {
     fetchEmails();
-    const intervalId = setInterval(fetchEmails, POLL_INTERVAL_MS);
+    const intervalId = setInterval(fetchEmails, pollIntervalMs);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [pollIntervalMs]);
 
   const handleSavePrompt = async () => {
     setIsSaving(true);
@@ -157,7 +157,6 @@ function App() {
             <EmailDetail
               email={selectedEmail}
               onBack={() => setSelectedEmail(null)}
-              onSave={handleUpdateEmail}
             />
           ) : (
             <EmailList

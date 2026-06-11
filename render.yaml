@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: piromail-backend
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile.backend
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false # Set this manually in Render dashboard
+
+  - type: web
+    name: piromail-frontend
+    env: docker
+    region: oregon
+    plan: free
+    dockerContext: ./apps/frontend
+    dockerfilePath: ./apps/frontend/Dockerfile
+    envVars:
+      - key: VITE_API_URL
+        value: https://piromail-backend.onrender.com

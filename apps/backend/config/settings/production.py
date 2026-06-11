@@ -18,3 +18,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 # Optionally configure logging for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://piromail-backend.onrender.com',
+    'https://piromail-frontend.onrender.com',
+]

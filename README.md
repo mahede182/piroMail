@@ -1,6 +1,13 @@
-# piroMail ✉️
+# piroMail
 
 AI-powered email assistant that reads inbox, classifies emails using AI, and displays important notifications on a real-time dashboard.
+
+# preview
+
+
+https://github.com/user-attachments/assets/858224a9-8c67-45a8-b489-556fca5faa92
+
+
 
 ## 🚀 Tech Stack
 
@@ -31,7 +38,13 @@ docker compose up --build
 - **Backend API:** `http://localhost:8000`
 - **Frontend Dashboard:** `http://localhost:3000`
 
-### 3. Fetching and Classifying Emails (`poll_emails`)
+### 3. Admin Credentials
+
+| Username | Password |
+|----------|----------|
+| admin    | admin    |
+
+### 4. Fetching and Classifying Emails (`poll_emails`)
 
 To process the mock inbox and classify emails using the AI model, you need to run the `poll_emails` Django management command. 
 

@@ -3,7 +3,7 @@ import os
 import time
 from pathlib import Path
 
-import google.generativeai as genai
+from openai import OpenAI
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -21,14 +21,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        gemini_api_key = os.environ.get('GEMINI_API_KEY')
-        if not gemini_api_key:
-            self.stderr.write(self.style.ERROR("GEMINI_API_KEY environment variable is not set."))
+        openrouter_api_key = os.environ.get('OPENROUTER_API_KEY')
+        if not openrouter_api_key:
+            self.stderr.write(self.style.ERROR("OPENROUTER_API_KEY environment variable is not set."))
             return
 
-        genai.configure(api_key=gemini_api_key)
-        
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=openrouter_api_key,
+        )
 
         mock_file_path = settings.BASE_DIR / 'mock_emails.json'
         
@@ -68,33 +69,41 @@ class Command(BaseCommand):
                 self.stdout.write(f"Processing new email: {email_id} - {subject}")
 
                 from emails.models import Configuration
+                from emails.constants import (
+                    DEFAULT_BASE_PROMPT,
+                    JSON_INSTRUCTION_PROMPT,
+                    DEFAULT_AI_MODEL,
+                )
+
                 try:
                     config = Configuration.objects.get(key='SYSTEM_PROMPT')
                     base_prompt = config.value
                 except Configuration.DoesNotExist:
-                    base_prompt = (
-                        "You are an AI Email Assistant classifying an email. "
-                        "Analyze the following email subject and body.\n\n"
-                        "What the AI Should Flag as Important:\n"
-                        "• Client complaint or urgent customer request\n"
-                        "• Payment failure or billing issue\n"
-                        "• Low-priority automated or subscription email (Do NOT flag as important)\n"
-                    )
+                    base_prompt = DEFAULT_BASE_PROMPT
 
                 system_prompt = (
                     f"{base_prompt} "
-                    "You must return ONLY a raw JSON object with NO markdown formatting, NO code blocks, and NO extra text. "
-                    "The JSON object must have exactly these keys: "
-                    "1. 'important' (boolean): true if the email is urgent, action-required, or from a critical sender (boss, client, alert). "
-                    "2. 'priority' (string): either 'HIGH', 'MEDIUM', or 'LOW'. "
-                    "3. 'category' (string): a short 1-2 word category (e.g., 'Work', 'Alert', 'Newsletter'). "
-                    "4. 'reason' (string): a clear sentence justifying the decision. "
+                    f"{JSON_INSTRUCTION_PROMPT} "
                     f"\n\nSubject: {subject}\nBody: {body}"
                 )
 
                 try:
-                    response = model.generate_content(system_prompt)
-                    response_text = response.text.strip()
+                    ai_model_config = Configuration.objects.get(key='AI_MODEL')
+                    ai_model = ai_model_config.value
+                except Configuration.DoesNotExist:
+                    ai_model = DEFAULT_AI_MODEL
+
+                try:
+                    response = client.chat.completions.create(
+                        model=ai_model,
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": system_prompt
+                            }
+                        ]
+                    )
+                    response_text = response.choices[0].message.content.strip()
                     
                     # Sanitize response to ensure it's valid JSON
                     if response_text.startswith("```json"):
@@ -125,7 +134,7 @@ class Command(BaseCommand):
                             category=category,
                             reason=reason
                         )
-                    self.stdout.write(self.style.SUCCESS(f"Successfully processed and saved {email_id}."))
+                    self.stdout.write(self.style.SUCCESS(f"Successfully processed and saved {email_id} using {ai_model}."))
                     new_emails_processed += 1
 
                 except Exception as e:
@@ -143,4 +152,12 @@ class Command(BaseCommand):
             if not is_loop:
                 break
                 
-            time.sleep(120)
+            try:
+                from emails.models import Configuration
+                from emails.constants import DEFAULT_POLL_INTERVAL
+                poll_interval_config = Configuration.objects.get(key='POLL_INTERVAL')
+                poll_interval = int(poll_interval_config.value)
+            except (Configuration.DoesNotExist, ValueError):
+                poll_interval = DEFAULT_POLL_INTERVAL
+
+            time.sleep(poll_interval)

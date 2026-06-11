@@ -55,12 +55,25 @@ def update_email(request, email_id):
 @csrf_exempt
 def config_view(request):
     if request.method == 'GET':
+        from emails.constants import DEFAULT_POLL_INTERVAL
+        prompt = ''
+        poll_interval = DEFAULT_POLL_INTERVAL * 1000
         try:
-            config = Configuration.objects.get(key='SYSTEM_PROMPT')
-            return JsonResponse({'prompt': config.value})
+            prompt_config = Configuration.objects.get(key='SYSTEM_PROMPT')
+            prompt = prompt_config.value
         except Configuration.DoesNotExist:
-            return JsonResponse({'prompt': ''})
+            pass
             
+        try:
+            poll_config = Configuration.objects.get(key='POLL_INTERVAL')
+            poll_interval = int(poll_config.value) * 1000  # Convert to ms for frontend
+        except (Configuration.DoesNotExist, ValueError):
+            pass
+            
+        return JsonResponse({
+            'prompt': prompt,
+            'poll_interval': poll_interval
+        })
     elif request.method == 'POST':
         try:
             data = json.loads(request.body)

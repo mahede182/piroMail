@@ -1,19 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-export default function EmailDetail({ email, onBack, onSave }) {
-  const [body, setBody] = useState(email.body || '');
-  const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    setBody(email.body || '');
-  }, [email]);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await onSave(email.email_id, body);
-    setIsSaving(false);
-  };
-
+export default function EmailDetail({ email, onBack }) {
   return (
     <section className="email-detail-container">
       <div className="detail-header">
@@ -24,29 +11,19 @@ export default function EmailDetail({ email, onBack, onSave }) {
           </svg>
           Back
         </button>
-        <button 
-          className="btn-primary btn-save" 
-          onClick={handleSave} 
-          disabled={isSaving || body === email.body}
-        >
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
       </div>
       
-      <div className="detail-main-content">
+      <div className="detail-main-content" style={{ overflowY: 'auto' }}>
         <h2 className="detail-subject">{email.subject}</h2>
         <div className="meta-row">
           <span className="meta-label">From:</span>
           <span className="meta-value">{email.sender}</span>
         </div>
         
-        <div className="detail-body-editor">
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="body-textarea"
-            placeholder="Email body content..."
-          />
+        <div className="detail-body-editor" style={{ marginTop: '1.5rem' }}>
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '1rem', color: 'var(--text-primary)' }}>
+            {email.body}
+          </div>
         </div>
       </div>
       
@@ -65,3 +42,4 @@ export default function EmailDetail({ email, onBack, onSave }) {
     </section>
   );
 }
+

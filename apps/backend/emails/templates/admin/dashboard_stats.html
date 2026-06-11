@@ -1,0 +1,68 @@
+<div
+  style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+  <h2
+    style="margin-top: 0; color: #111827; font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px;">
+    PiroMail</h2>
+  <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+    <div>
+      <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">Emails Processing
+      </div>
+      <div style="font-size: 24px; color: #111827; font-weight: 600;">{{ email_count }}</div>
+    </div>
+    <div>
+      <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">AI Model</div>
+      <div style="font-size: 24px; color: #111827; font-weight: 600;">{{ ai_model }}</div>
+    </div>
+    <div>
+      <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">Model Cost</div>
+      <div style="font-size: 24px; color: #10b981; font-weight: 600;">{{ model_cost }}</div>
+    </div>
+    <div>
+      <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: bold;">Auto Pull Timing</div>
+      <div style="font-size: 24px; color: #3b82f6; font-weight: 600;">{{ poll_interval }}s</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+    <h3 style="margin-top: 0; color: #374151; font-size: 14px; margin-bottom: 10px;">Emails Processed (Last 7 Days)</h3>
+    <div style="height: 150px; width: 100%;">
+      <canvas id="dailyEmailsChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('dailyEmailsChart').getContext('2d');
+    var chartLabels = {{ chart_labels|safe }};
+    var chartData = {{ chart_data|safe }};
+    
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: chartLabels,
+        datasets: [{
+          label: 'Processed Emails',
+          data: chartData,
+          backgroundColor: '#3b82f6',
+          borderRadius: 4,
+          barThickness: 30
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0 }
+          }
+        }
+      }
+    });
+  });
+</script>

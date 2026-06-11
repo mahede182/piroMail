@@ -1,0 +1,32 @@
+[
+  {
+    "email_id": "em_001",
+    "sender": "boss@company.com",
+    "subject": "URGENT: Server Down",
+    "body": "The production server is currently unreachable. Need an immediate fix before clients notice."
+  },
+  {
+    "email_id": "em_002",
+    "sender": "newsletter@marketing.com",
+    "subject": "Your Weekly Tech News",
+    "body": "Here are the top 10 trends in AI for 2026. Read more inside..."
+  },
+  {
+    "email_id": "em_003",
+    "sender": "hr@company.com",
+    "subject": "Upcoming Holiday Schedule",
+    "body": "Please find attached the holiday schedule for Q3 and Q4."
+  },
+  {
+    "email_id": "em_004",
+    "sender": "client@important.com",
+    "subject": "Proposal Feedback",
+    "body": "We loved your proposal but have a few questions regarding the timeline. Can we schedule a call today?"
+  },
+  {
+    "email_id": "em_005",
+    "sender": "noreply@github.com",
+    "subject": "[GitHub] Dependabot Alert",
+    "body": "Dependabot found 1 vulnerability in one of your dependencies. Please review."
+  }
+]

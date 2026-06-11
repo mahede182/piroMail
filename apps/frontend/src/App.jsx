@@ -1,122 +1,179 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './index.css';
+import Sidebar from './components/Sidebar';
+import EmailList from './components/EmailList';
+import EmailDetail from './components/EmailDetail';
+
+const API_URL = 'http://localhost:8000/api/notifications/';
+const CONFIG_URL = 'http://localhost:8000/api/config/';
+const PROCESS_URL = 'http://localhost:8000/api/process_emails/';
+const UPDATE_URL = 'http://localhost:8000/api/update_email/';
+const POLL_INTERVAL_MS = 10000;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [emails, setEmails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const isConnected = false;
+
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const [selectedEmail, setSelectedEmail] = useState(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch(CONFIG_URL);
+        if (response.ok) {
+          const data = await response.json();
+          setSystemPrompt(data.prompt || '');
+        }
+      } catch (e) {
+        console.error("Failed to fetch config", e);
+      }
+    };
+    fetchConfig();
+  }, []);
+
+  const fetchEmails = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setEmails(data);
+      setError(null);
+      setLastUpdated(new Date());
+
+      // Update selected email if it's currently open
+      if (selectedEmail) {
+        const updatedSelected = data.find(e => e.email_id === selectedEmail.email_id);
+        if (updatedSelected) {
+          setSelectedEmail(updatedSelected);
+        }
+      }
+    } catch (e) {
+      console.error("Fetching error:", e);
+      setError("Failed to fetch notifications.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmails();
+    const intervalId = setInterval(fetchEmails, POLL_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleSavePrompt = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+    try {
+      const response = await fetch(CONFIG_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: systemPrompt }),
+      });
+      if (response.ok) {
+        setSaveMessage('Saved!');
+        setTimeout(() => setSaveMessage(''), 3000);
+      } else {
+        setSaveMessage('Error saving.');
+      }
+    } catch (e) {
+      console.error("Failed to save config", e);
+      setSaveMessage('Error saving.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleProcessEmails = async () => {
+    setIsProcessing(true);
+    try {
+      const response = await fetch(PROCESS_URL, { method: 'POST' });
+      if (response.ok) {
+        await fetchEmails();
+      } else {
+        console.error("Failed to process emails");
+      }
+    } catch (e) {
+      console.error("Process error:", e);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleUpdateEmail = async (emailId, newBody) => {
+    try {
+      const response = await fetch(`${UPDATE_URL}${emailId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: newBody })
+      });
+      if (response.ok) {
+        await fetchEmails();
+      }
+    } catch (e) {
+      console.error("Failed to update email:", e);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <header className="header">
+        <h1>PiroMail</h1>
+        <div className="header-controls">
+          <button 
+            onClick={handleProcessEmails} 
+            disabled={isProcessing} 
+            className="btn-primary header-btn"
+          >
+            {isProcessing ? 'Polling...' : 'Poll Mock Emails'}
+          </button>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
+      <div className="main-container">
+        <Sidebar
+          systemPrompt={systemPrompt}
+          setSystemPrompt={setSystemPrompt}
+          handleSavePrompt={handleSavePrompt}
+          isSaving={isSaving}
+          saveMessage={saveMessage}
+          handleProcessEmails={handleProcessEmails}
+          isProcessing={isProcessing}
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="right-panel">
+          {selectedEmail ? (
+            <EmailDetail
+              email={selectedEmail}
+              onBack={() => setSelectedEmail(null)}
+              onSave={handleUpdateEmail}
+            />
+          ) : (
+            <EmailList
+              emails={emails}
+              loading={loading}
+              error={error}
+              lastUpdated={lastUpdated}
+              onSelectEmail={setSelectedEmail}
+              isConnected={isConnected}
+            />
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
+

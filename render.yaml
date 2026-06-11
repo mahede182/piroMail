@@ -17,5 +17,5 @@ services:
     dockerContext: ./apps/frontend
     dockerfilePath: ./apps/frontend/Dockerfile
     envVars:
-      - key: VITE_API_URL
+      - key: VITE_API_BASE_URL
         value: https://piromail-backend.onrender.com
